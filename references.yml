@@ -1,0 +1,34 @@
+NSA2025MemorySafe:
+  type: report
+  author: National Security Agency (NSA) and Cybersecurity and Infrastructure Security Agency (CISA)
+  title: "CSI: Memory Safe Languages: Reducing Vulnerabilities in Modern Software Development"
+  date: 2025-07-23
+  url: http://media.defense.gov/2025/Jun/23/2003742198/-1/-1/0/CSI_MEMORY_SAFE_LANGUAGES_REDUCING_VULNERABILITIES_IN_MODERN_SOFTWARE_DEVELOPMENT.PDF
+
+crubit:
+  type: repository
+  author: Google
+  title: "Crubit"
+  url: https://github.com/google/crubit
+  date: 2025-07
+
+cxx:
+  type: repository
+  author: David Tolnay
+  title: "CXX - safe introp between Rust and C++"
+  url: https://cxx.rs/
+  date: 2020
+
+zngur:
+  type: repository
+  author: Hamidreza Kalbasi
+  title: "Zngur"
+  url: https://github.com/HKalbasi/zngur
+  date: 2025-07
+
+CppStandardDraft:
+  type: report
+  author: ISO/IEC JTC 1/SC22/WG21
+  title: Working Draft, Programming Languages - C++ (N5008)
+  date: 2025-03-15
+  url: https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2025/n5008.pdf
