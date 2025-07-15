@@ -69,17 +69,109 @@ contribution: a `start_lifetime_at` function that resolves the semantic gap
 (@sec-start_lifetime_at). Finally, we outline the future work required to make
 this solution production-ready for C++/Rust interop (@sec-future).
 
-= The relocatability problem <sec-problem>
+= Divergent Relocation Models in C++ and Rust <sec-problem>
 
-- Difference between Rust and C++'s relocation semantics.
+While C++ and Rust both have mechanisms for relocating objects, their approaches
+are fundamentally incompatible. Rust's move semantics are built on a universal
+principle: a move is a destructive bitwise copy (`memcpy`). The compiler then
+statically guarantees that the original object cannot be used again. This rule
+applies to all types, with the only exception being those that implement the
+`Copy` trait, which are also bit-copied but whose source remains valid.
 
-== Theoretical Issue
+Conversely, C++ relocation is a high-level operation defined by move
+constructors and assignment operators. A C++ move is a function call, not a
+guaranteed bit-copy, designed to "steal" internal resources. This leaves the
+source object in a "valid but unspecified state," relying on runtime convention
+to ensure it is handled safely.
 
-- Undefined behavior
+This bitwise-copy behavior is deeply embedded throughout Rust and cannot be
+overridden. Core language operations, from simple assignment to generic
+functions like `std::ptr::read`@RustStdPtrRead, depend on the ability to safely
+relocate any type via `memcpy`. This creates a fundamental conflict when trying
+to interoperate with C++ types. A C++ object with a custom move constructor, for
+example, cannot be safely relocated by Rust's universal bitwise copy, as this
+would bypass the C++ object's essential logic, leading to incorrect program
+state or memory errors.
 
-== Practical Issue
+== Why Arbitrary Bitwise Copies are Undefined in C++
 
-- ARM64e ABI
+In C++, you cannot safely create a copy of an arbitrary object by simply copying
+its bits to a new memory location. Treating the resulting memory as a valid
+object results in undefined behavior.
+
+```
+class Foo {
+public:
+  Foo();
+  void bar();
+// ...
+};
+
+void bar() {
+  // Allocate raw, aligned memory buffers
+  alignas(Foo) char x_buffer[sizeof(Foo)];
+  alignas(Foo) char y_buffer[sizeof(Foo)];
+
+  // Create a valid Foo object in the first buffer
+  Foo* x = new (buffer) Foo();
+
+  // Copy the raw bytes from the first buffer to
+  // the second
+  std::memcpy(&y_buffer, x, sizeof(Foo));
+
+  // Treat the bytes in the second buffer as a
+  // Foo object
+  Foo* y = reinterpret_cast<Foo*>(y_buffer);
+
+  y->bar(); // UNDEFINED BEHAVIOR
+}
+
+```
+
+Intuitively, it makes sense to disallow this. If `Foo` contained a pointer to
+one of its own members, the copied object `*y` would have a pointer pointing
+back into the memory of the original object `*x`. C++ formalizes this by stating
+that `y` doesn't point to an object with its lifetime.
+
+The major exception to this rule is for _trivially copyable_ types.
+These are types (like simple C-style structs) whose state is nothing more than
+the sum of their bits. For these specific types, a bitwise copy is a valid way
+to create a new object.
+#footnote[
+This is defined for trivially copyable types due to two clauses. First,
+[cstring.cyn] paragraph 3 states that `memcpy` "implicitly creates objects in
+the destination region of storage immediately prior to copying the sequence of
+characters to the destination. Second, [basic.types.general] states "For two
+distinct objects `obj1` and `obj2` of trivially copyable type `T`, where neither
+`obj1` nor `obj2` is a potentially-overlapping subobject, if the underlying bytes
+making up `obj1` are copied into `obj2`, `obj2` shall subsequently hold the same
+value as `obj1`.
+]
+However, this excludes any class with virtual functions or custom copy, move, or
+destructor logic.
+
+== When Undefined Behavior Fails: Pointer Authentication
+
+A common argument holds that because truly self-referential types are rare, the
+C++ standard is overly aggressive in defining bitwise object relocation as
+undefined behavior. This perspective was bolstered for years by the fact that
+major compilers produced predictable results, enabling the development of
+sophisticated relocation libraries like Bloomberg's BSL@BslRelocation and
+Facebook's Folly@FollyRelocation.
+
+However, this reliance demonstrates the classic danger of undefined behavior: a
+program that works today can fail catastrophically after a compiler upgrade or a
+change in hardware architecture.
+
+This exact scenario unfolded with Apple's arm64e ABI@Arm64e, which introduced
+Pointer Authentication Codes (PAC)@PointerAuthentication to mitigate security
+vulnerabilities. This architecture uses an object's own memory address to
+generate a cryptographic signature for its v-table pointer. Consequently, if a
+polymorphic object is relocated with a simple bitwise copy, its v-pointer
+becomes invalid because the signature—which was calculated from the old
+address—no longer matches the object's new address. In essence, the arm64e ABI
+made all polymorphic C++ objects self-referential, breaking any code that
+depended on the non-standard assumption that they could be safely relocated.
 
 = Existing solutions and their drawbacks <sec-existing>
 

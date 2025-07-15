@@ -32,3 +32,54 @@ CppStandardDraft:
   title: Working Draft, Programming Languages - C++ (N5008)
   date: 2025-03-15
   url: https://www.open-std.org/JTC1/SC22/WG21/docs/papers/2025/n5008.pdf
+
+RustStdPtrRead:
+  type: report
+  author: The Rust Project Developers
+  title: "{Function std::ptr::read in The Rust Standard Library}"
+  version: "1.80.0"
+  url:
+      value: https://doc.rust-lang.org/1.80.0/std/ptr/fn.read.html
+      date: 2025-07-15
+
+FollyRelocation:
+  type: report
+  author: Facebook
+  title: "Object Relocation in Folly Library Documentation"
+  url:
+    value: "https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md#object-relocation"
+    date: "2025-07-15"
+
+BslRelocation:
+  type: report
+  author: Bloomberg
+  title: "`bslmf::IsBitwiseMoveable`: bitwise moveable trait metafunction"
+  year: 2022 # From the provided 2013-2022 range
+  url:
+    value: "https://github.com/bloomberg/bde/blob/962f7aa/groups/bsl/bslmf/bslmf_isbitwisemoveable.h#L8-L48" #
+    date: "2025-07-15"
+
+PointerAuthentication:
+  type: report
+  author:
+    - Oliver Hunt
+    - John McCall
+  title: "A gentle introduction to pointer authentication"
+  number: "D3751R0"
+  date: 2018-06-18
+  url:
+    value: "https://waffles.dog/d3751r0.html"
+    date: "2025-07-15"
+  note: "A C++ standards committee discussion paper."
+
+Arm64e:
+  type: conference
+  author:
+    - "John McCall"
+    - "Ahmed Bougacha"
+  title: "arm64e: An ABI for Pointer Authentication"
+  event: "2019 LLVM Developers' Meeting"
+  date: 2019-10-22
+  url:
+    value: "https://llvm.org/devmtg/2019-10/slides/McCall-Bougacha-arm64e.pdf"
+    date: "2025-07-15"
