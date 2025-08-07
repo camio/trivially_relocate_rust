@@ -131,7 +131,7 @@ void bar() {
 Intuitively, it makes sense to disallow this. If `Foo` contained a pointer to
 one of its own members, the copied object `*y` would have a pointer pointing
 back into the memory of the original object `*x`. C++ formalizes this by stating
-that `y` doesn't point to an object with its lifetime.
+that `y` doesn't point to an object within its lifetime.
 
 The major exception to this rule is for _trivially copyable_ types.
 These are types (like simple C-style structs) whose state is nothing more than
