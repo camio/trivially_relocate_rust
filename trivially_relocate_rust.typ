@@ -211,7 +211,7 @@ _Postconditions_: No effect if `result == first` is `true`. Otherwise, the range
 + (last - first))` contains objects (including subobjects) whose lifetime has begun and whose object
 representations are the original object representations of the corresponding objects in the source range
 `[first, last)` except for any parts of the object representations used by the implementation to represent
-type information (6.7.2). If any of the objects has union type, its active member is the same as that of
+type information (6.8.2). If any of the objects has union type, its active member is the same as that of
 the corresponding object in the source range. If any of the aforementioned objects has a non-static data
 member of reference type, that reference refers to the same entity as does the corresponding reference
 in the source range. The lifetimes of the original objects in the source range have ended.
