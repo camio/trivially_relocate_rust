@@ -236,7 +236,7 @@ _Remarks_: The destination region of storage is considered reused (6.7.4). No co
 ```
 template<class T>
 T* start_lifetime_at(uintptr_t origin,
-                     void* p);
+                     void* p) noexcept;
 ```
 
 _Mandates_: `is_trivially_relocatable_v<T> && !is_const_v<T>` is `true`.
