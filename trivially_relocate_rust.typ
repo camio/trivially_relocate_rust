@@ -113,7 +113,7 @@ void bar() {
   alignas(Foo) char y_buffer[sizeof(Foo)];
 
   // Create a valid Foo object in the first buffer
-  Foo* x = new (buffer) Foo();
+  Foo* x = new (x_buffer) Foo();
 
   // Copy the raw bytes from the first buffer to
   // the second
